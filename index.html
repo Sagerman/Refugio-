@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Espacio para Isa</title>
+    <link rel="stylesheet" href="globals.css" />
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap');
+      
+      main {
+        min-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      /* --- ANIMACIÓN SUAVE DE BRILLO --- */
+      .animate-pulse-glow {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        display: inline-block;
+        /* Animación suave de 2.5 segundos */
+        animation: soft-glow 2.5s ease-in-out infinite;
+      }
+
+      @keyframes soft-glow {
+        0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(159, 122, 234, 0)); }
+        50% { transform: scale(1.1); filter: drop-shadow(0 0 15px rgba(253, 224, 71, 0.6)); /* Brillo dorado suave */ }
+        100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(159, 122, 234, 0)); }
+      }
+      /* ----------------------- */
+
+      .outline-btn {
+        background: transparent;
+        border: 2px solid #b39ddb;
+        color: #5e3375;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        margin-top: 20px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      .outline-btn:hover { background: #f3e5f5; transform: translateY(-2px); }
+      
+      .error-msg { color: crimson; font-size: 0.8rem; margin-top: 5px; display: none; }
+    </style>
+  </head>
+  
+  <body>
+    <div class="background-blob blob-1"></div>
+    <div class="background-blob blob-2"></div>
+
+    <main>
+      
+      <section id="welcome-view" class="card fade-in" style="text-align: center;">
+        <div class="animate-pulse-glow" style="color: #9f7aea;">💜</div>
+
+        <h1 id="welcome-title" style="font-size: 1.4rem; color: #5e3375; margin-bottom: 15px;">
+          Hola, Isa
+        </h1>
+        
+        <p id="welcome-text" class="message-text" style="font-size: 1.1rem; margin-bottom: 30px;">
+          He preparado un lugar para ti.
+        </p>
+        
+        <button class="welcome-btn" onclick="goToIntro()">Entrar un momento</button>
+        
+        <p style="font-size: 0.8rem; color: #888; margin-top: 15px; opacity: 0.7;">Usa audífonos 🎧</p>
+      </section>
+
+      <section id="intro-view" class="card fade-in" hidden style="text-align: center;">
+        <div class="animate-pulse-glow">🌟</div>
+        
+        <h2 style="font-size: 1.2rem; color: #5e3375; margin-bottom: 20px;">
+          Tengo algo que decirte...
+        </h2>
+        
+        <div class="audio-wrapper">
+          <audio id="intro-audio" controls class="custom-audio" preload="auto" onerror="mostrarError(this)">
+            <source src="audios/Introduccion.mp3" type="audio/mpeg">
+            Tu navegador no soporta el audio.
+          </audio>
+          <p class="error-msg">⚠️ No encuentro 'audios/Introduccion.mp3'</p>
+        </div>
+
+        <p style="font-size: 0.9rem; margin: 20px 0; color: #666;">Dale play cuando estés lista ☝️</p>
+        
+        <button class="outline-btn" onclick="goToMessages()">Continuar</button>
+      </section>
+
+      <section id="player-view" hidden>
+        <div id="messageContainer"></div>
+      </section>
+
+    </main>
+
+    <footer><p>Con cariño ✨</p></footer>
+
+    <script>
+      /* --- TUS MENSAJES --- */
+      const messages = [
+        {
+          id: 1, 
+          title: 'Día 1: Calma (Parte 1 y 2)',
+          verse: '"Porque yo sé los pensamientos que tengo acerca de vosotros..." - Jeremías 29:11',
+          message: 'Hoy iniciamos con algo importante. Te dejé dos notas de voz. Escucha la primera y luego la segunda.',
+          audio: ['audios/1.mp3', 'audios/1.2.mp3'], 
+        },
+        {
+          id: 2,
+          title: 'Día 2: Cargas',
+          verse: '"Todo tiene su tiempo... Él ha puesto eternidad en el corazón..." - Eclesiastés 3:11',
+          message: 'A veces miramos hacia afuera y todo parece brillar más. Pero hay una verdad profunda sobre eso.',
+          audio: 'audios/2.mp3', 
+        },
+      ];
+
+      const STORAGE_KEY = 'isa_espacio_v6_star'; 
+
+      /* Funciones de Utilidad */
+      function mostrarError(audio) {
+         if(audio.parentElement.querySelector('.error-msg')) {
+            audio.parentElement.querySelector('.error-msg').style.display = 'block';
+         }
+      }
+
+      function goToIntro() {
+        const state = getAppState();
+        document.getElementById('welcome-view').hidden = true;
+
+        if (!state.introPlayed) {
+            // Si es la primera vez, vamos a la intro de la ESTRELLA 🌟
+            document.getElementById('intro-view').hidden = false;
+            document.getElementById('intro-view').classList.add('fade-in');
+        } else {
+            // Si ya entró antes, vamos directo al mensaje
+            showDailyMessage(document.getElementById('messageContainer'), state);
+            document.getElementById('player-view').hidden = false;
+            document.getElementById('player-view').classList.add('fade-in');
+        }
+      }
+
+      function goToMessages() {
+        const state = getAppState();
+        document.getElementById('intro-audio').pause();
+        state.introPlayed = true;
+        saveAppState(state);
+
+        document.getElementById('intro-view').hidden = true;
+        showDailyMessage(document.getElementById('messageContainer'), state);
+        document.getElementById('player-view').hidden = false;
+        document.getElementById('player-view').classList.add('fade-in');
+      }
+
+      function showDailyMessage(container, state) {
+        const today = new Date().toDateString();
+        if (state.lastVisitDate !== null && state.lastVisitDate !== today) {
+            if (state.currentIndex < messages.length - 1) state.currentIndex++;
+        }
+        state.lastVisitDate = today;
+        saveAppState(state);
+
+        const msg = messages[state.currentIndex];
+        container.innerHTML = renderCard(msg);
+      }
+
+      function renderCard(msg) {
+        let audioHTML = '';
+        if (Array.isArray(msg.audio)) {
+            msg.audio.forEach((src, index) => {
+                audioHTML += `
+                <div class="audio-container">
+                    <p class="audio-label">Parte ${index + 1}</p>
+                    <div class="audio-wrapper">
+                        <audio controls class="custom-audio" onerror="mostrarError(this)">
+                            <source src="${src}" type="audio/mpeg">
+                        </audio>
+                        <p class="error-msg">⚠️ No encuentro '${src}'</p>
+                    </div>
+                </div>`;
+            });
+        } else {
+            audioHTML = `
+            <div class="audio-container">
+                <div class="audio-wrapper">
+                    <audio controls class="custom-audio" onerror="mostrarError(this)">
+                        <source src="${msg.audio}" type="audio/mpeg">
+                    </audio>
+                    <p class="error-msg">⚠️ No encuentro '${msg.audio}'</p>
+                </div>
+            </div>`;
+        }
+
+        return `
+        <article class="card fade-in">
+          <div class="card-title">${msg.title}</div>
+          ${audioHTML}
+          <div style="border-left: 3px solid #b39ddb; padding-left: 15px; margin: 20px 0;">
+            <p class="verse-text">${msg.verse}</p>
+          </div>
+          <p class="message-text">${msg.message}</p>
+          <div style="margin-top: 40px; text-align: center;">
+             <span style="font-size: 0.8rem; background: #f3e5f5; padding: 5px 15px; border-radius: 20px; color: #6a1b9a;">
+                Mensaje ${messages.indexOf(msg) + 1} de ${messages.length}
+             </span>
+          </div>
+        </article>
+        `;
+      }
+
+      function getAppState() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return { introPlayed: false, currentIndex: 0, lastVisitDate: null };
+        return JSON.parse(stored);
+      }
+      function saveAppState(state) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+      
+      document.addEventListener('DOMContentLoaded', () => {
+        const state = getAppState();
+        if (state.introPlayed) {
+           document.getElementById('welcome-title').innerText = "Hola de nuevo, Isa";
+           document.getElementById('welcome-text').innerText = "Tu mensaje está listo.";
+        }
+      });
+    </script>
+  </body>
+</html>
