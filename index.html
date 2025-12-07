@@ -17,21 +17,19 @@
         padding: 20px;
       }
 
-      /* --- ANIMACIÓN SUAVE DE BRILLO --- */
+      /* Animación de la Estrella */
       .animate-pulse-glow {
         font-size: 4rem;
         margin-bottom: 20px;
         display: inline-block;
-        /* Animación suave de 2.5 segundos */
         animation: soft-glow 2.5s ease-in-out infinite;
       }
 
       @keyframes soft-glow {
         0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(159, 122, 234, 0)); }
-        50% { transform: scale(1.1); filter: drop-shadow(0 0 15px rgba(253, 224, 71, 0.6)); /* Brillo dorado suave */ }
+        50% { transform: scale(1.1); filter: drop-shadow(0 0 15px rgba(253, 224, 71, 0.6)); }
         100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(159, 122, 234, 0)); }
       }
-      /* ----------------------- */
 
       .outline-btn {
         background: transparent;
@@ -47,6 +45,28 @@
       .outline-btn:hover { background: #f3e5f5; transform: translateY(-2px); }
       
       .error-msg { color: crimson; font-size: 0.8rem; margin-top: 5px; display: none; }
+
+      /* Navegación */
+      .nav-container {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 20px;
+      }
+      
+      .nav-btn {
+        background: transparent;
+        border: none;
+        color: #9f7aea;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 0.9rem;
+        padding: 10px;
+        transition: 0.2s;
+      }
+      .nav-btn:hover { color: #5e3375; transform: scale(1.1); }
+      .nav-btn:disabled { color: #e2e8f0; cursor: default; transform: none; }
+
     </style>
   </head>
   
@@ -113,32 +133,40 @@
         {
           id: 2,
           title: 'Día 2: Cargas',
-          verse: '"Todo tiene su tiempo... Él ha puesto eternidad en el corazón..." - Eclesiastés 3:11',
-          message: 'A veces miramos hacia afuera y todo parece brillar más. Pero hay una verdad profunda sobre eso.',
+          /* TEXTO BÍBLICO COMPLETO */
+          verse: '"Todo lo hizo hermoso en su tiempo; y ha puesto eternidad en el corazón de ellos, sin que alcance el hombre a entender la obra que ha hecho Dios desde el principio hasta el fin." - Eclesiastés 3:11',
+          /* MENSAJE DE FORTALEZA (DIFERENTE AL GUIÓN) */
+          message: 'Aunque ahora no veas el cuadro completo, confía en que Dios está haciendo algo hermoso con tu vida. Su reloj no se atrasa ni se adelanta; Él sabe exactamente lo que hace contigo. Mantente firme en medio del proceso.',
           audio: 'audios/2.mp3', 
         },
       ];
 
-      const STORAGE_KEY = 'isa_espacio_v6_star'; 
+      /* CLAVE DE ALMACENAMIENTO */
+      const STORAGE_KEY = 'isa_espacio_history_v1'; 
 
-      /* Funciones de Utilidad */
-      function mostrarError(audio) {
-         if(audio.parentElement.querySelector('.error-msg')) {
-            audio.parentElement.querySelector('.error-msg').style.display = 'block';
-         }
+      /* --- LÓGICA DE ESTADO --- */
+      function getAppState() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return { introPlayed: false, maxUnlockedIndex: 0, currentViewIndex: 0, lastVisitDate: null };
+        return JSON.parse(stored);
       }
 
+      function saveAppState(state) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      /* --- NAVEGACIÓN --- */
       function goToIntro() {
         const state = getAppState();
         document.getElementById('welcome-view').hidden = true;
 
         if (!state.introPlayed) {
-            // Si es la primera vez, vamos a la intro de la ESTRELLA 🌟
             document.getElementById('intro-view').hidden = false;
             document.getElementById('intro-view').classList.add('fade-in');
         } else {
-            // Si ya entró antes, vamos directo al mensaje
-            showDailyMessage(document.getElementById('messageContainer'), state);
+            // Si ya vio intro, vamos directo a mensajes
+            checkDailyProgress(state);
+            showCurrentMessage(state);
             document.getElementById('player-view').hidden = false;
             document.getElementById('player-view').classList.add('fade-in');
         }
@@ -151,24 +179,60 @@
         saveAppState(state);
 
         document.getElementById('intro-view').hidden = true;
-        showDailyMessage(document.getElementById('messageContainer'), state);
+        
+        checkDailyProgress(state); 
+        showCurrentMessage(state);
+        
         document.getElementById('player-view').hidden = false;
         document.getElementById('player-view').classList.add('fade-in');
       }
 
-      function showDailyMessage(container, state) {
+      /* --- LÓGICA DE DÍAS Y DESBLOQUEO --- */
+      function checkDailyProgress(state) {
         const today = new Date().toDateString();
+        
+        // Si es un día diferente al último que entró...
         if (state.lastVisitDate !== null && state.lastVisitDate !== today) {
-            if (state.currentIndex < messages.length - 1) state.currentIndex++;
+            // Y no ha llegado al final de los mensajes...
+            if (state.maxUnlockedIndex < messages.length - 1) {
+                state.maxUnlockedIndex++; // DESBLOQUEA EL SIGUIENTE
+            }
         }
+        
+        // Actualizamos fecha de última visita
         state.lastVisitDate = today;
+        
+        // Por defecto, mostramos lo más nuevo que tenga desbloqueado
+        state.currentViewIndex = state.maxUnlockedIndex;
+        
         saveAppState(state);
-
-        const msg = messages[state.currentIndex];
-        container.innerHTML = renderCard(msg);
       }
 
-      function renderCard(msg) {
+      function changeMessage(direction) {
+        const state = getAppState();
+        const newIndex = state.currentViewIndex + direction;
+
+        if (newIndex >= 0 && newIndex <= state.maxUnlockedIndex) {
+            state.currentViewIndex = newIndex;
+            saveAppState(state);
+            
+            const container = document.getElementById('messageContainer');
+            container.style.opacity = 0;
+            setTimeout(() => {
+                showCurrentMessage(state);
+                container.style.opacity = 1;
+            }, 200);
+        }
+      }
+
+      function showCurrentMessage(state) {
+        const container = document.getElementById('messageContainer');
+        const msg = messages[state.currentViewIndex];
+        container.innerHTML = renderCard(msg, state);
+      }
+
+      /* --- RENDERIZADO --- */
+      function renderCard(msg, state) {
         let audioHTML = '';
         if (Array.isArray(msg.audio)) {
             msg.audio.forEach((src, index) => {
@@ -195,6 +259,9 @@
             </div>`;
         }
 
+        const hasPrev = state.currentViewIndex > 0;
+        const hasNext = state.currentViewIndex < state.maxUnlockedIndex;
+
         return `
         <article class="card fade-in">
           <div class="card-title">${msg.title}</div>
@@ -203,22 +270,28 @@
             <p class="verse-text">${msg.verse}</p>
           </div>
           <p class="message-text">${msg.message}</p>
-          <div style="margin-top: 40px; text-align: center;">
-             <span style="font-size: 0.8rem; background: #f3e5f5; padding: 5px 15px; border-radius: 20px; color: #6a1b9a;">
-                Mensaje ${messages.indexOf(msg) + 1} de ${messages.length}
+          
+          <div class="nav-container">
+             <button class="nav-btn" onclick="changeMessage(-1)" ${!hasPrev ? 'disabled' : ''}>
+                ${hasPrev ? '⬅ Anterior' : ''}
+             </button>
+             
+             <span style="font-size: 0.8rem; color: #aaa; align-self: center;">
+                ${state.currentViewIndex + 1} / ${state.maxUnlockedIndex + 1}
              </span>
+
+             <button class="nav-btn" onclick="changeMessage(1)" ${!hasNext ? 'disabled' : ''}>
+                ${hasNext ? 'Siguiente ➡' : ''}
+             </button>
           </div>
         </article>
         `;
       }
 
-      function getAppState() {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (!stored) return { introPlayed: false, currentIndex: 0, lastVisitDate: null };
-        return JSON.parse(stored);
-      }
-      function saveAppState(state) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      function mostrarError(audio) {
+         if(audio.parentElement.querySelector('.error-msg')) {
+            audio.parentElement.querySelector('.error-msg').style.display = 'block';
+         }
       }
       
       document.addEventListener('DOMContentLoaded', () => {
