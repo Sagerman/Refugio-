@@ -17,7 +17,7 @@
         padding: 20px;
       }
 
-      /* Animación de la Estrella */
+      /* Animación suave */
       .animate-pulse-glow {
         font-size: 4rem;
         margin-bottom: 20px;
@@ -31,18 +31,18 @@
         100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(159, 122, 234, 0)); }
       }
 
-      .outline-btn {
-        background: transparent;
-        border: 2px solid #b39ddb;
-        color: #5e3375;
-        padding: 12px 30px;
-        border-radius: 50px;
-        font-weight: 600;
-        margin-top: 20px;
+      .welcome-btn {
+        background: linear-gradient(to right, #b39ddb, #9575cd); 
+        color: white; border: none; padding: 16px 35px; border-radius: 50px;
+        font-size: 1rem; font-weight: 600; width: 100%;
+        box-shadow: 0 8px 20px rgba(149, 117, 205, 0.3);
+        transition: all 0.3s ease;
         cursor: pointer;
-        transition: 0.3s;
       }
-      .outline-btn:hover { background: #f3e5f5; transform: translateY(-2px); }
+      .welcome-btn:hover {
+        background: linear-gradient(to right, #9575cd, #7e57c2);
+        transform: translateY(-3px);
+      }
       
       .error-msg { color: crimson; font-size: 0.8rem; margin-top: 5px; display: none; }
 
@@ -84,32 +84,12 @@
         </h1>
         
         <p id="welcome-text" class="message-text" style="font-size: 1.1rem; margin-bottom: 30px;">
-          He preparado un lugar para ti.
+          Aquí está tu mensaje de hoy.
         </p>
         
-        <button class="welcome-btn" onclick="goToIntro()">Entrar un momento</button>
+        <button class="welcome-btn" onclick="enterApp()">Ver mensaje</button>
         
         <p style="font-size: 0.8rem; color: #888; margin-top: 15px; opacity: 0.7;">Usa audífonos 🎧</p>
-      </section>
-
-      <section id="intro-view" class="card fade-in" hidden style="text-align: center;">
-        <div class="animate-pulse-glow">🌟</div>
-        
-        <h2 style="font-size: 1.2rem; color: #5e3375; margin-bottom: 20px;">
-          Tengo algo que decirte...
-        </h2>
-        
-        <div class="audio-wrapper">
-          <audio id="intro-audio" controls class="custom-audio" preload="auto" onerror="mostrarError(this)">
-            <source src="audios/Introduccion.mp3" type="audio/mpeg">
-            Tu navegador no soporta el audio.
-          </audio>
-          <p class="error-msg">⚠️ No encuentro 'audios/Introduccion.mp3'</p>
-        </div>
-
-        <p style="font-size: 0.9rem; margin: 20px 0; color: #666;">Dale play cuando estés lista ☝️</p>
-        
-        <button class="outline-btn" onclick="goToMessages()">Continuar</button>
       </section>
 
       <section id="player-view" hidden>
@@ -133,21 +113,25 @@
         {
           id: 2,
           title: 'Día 2: Cargas',
-          /* TEXTO BÍBLICO COMPLETO */
           verse: '"Todo lo hizo hermoso en su tiempo; y ha puesto eternidad en el corazón de ellos, sin que alcance el hombre a entender la obra que ha hecho Dios desde el principio hasta el fin." - Eclesiastés 3:11',
-          /* MENSAJE DE FORTALEZA (DIFERENTE AL GUIÓN) */
           message: 'Aunque ahora no veas el cuadro completo, confía en que Dios está haciendo algo hermoso con tu vida. Su reloj no se atrasa ni se adelanta; Él sabe exactamente lo que hace contigo. Mantente firme en medio del proceso.',
           audio: 'audios/2.mp3', 
         },
       ];
 
-      /* CLAVE DE ALMACENAMIENTO */
-      const STORAGE_KEY = 'isa_espacio_history_v1'; 
+      /* CAMBIÉ LA CLAVE PARA REINICIAR Y APLICAR CAMBIOS */
+      const STORAGE_KEY = 'isa_espacio_unlocked_v1'; 
 
-      /* --- LÓGICA DE ESTADO --- */
+      /* --- CONFIGURACIÓN INICIAL --- */
       function getAppState() {
         const stored = localStorage.getItem(STORAGE_KEY);
-        if (!stored) return { introPlayed: false, maxUnlockedIndex: 0, currentViewIndex: 0, lastVisitDate: null };
+        // TRUCO: Aquí ponemos maxUnlockedIndex en 1 (que es el Día 2)
+        // Así, aunque sea nueva, ya tiene el Día 2 habilitado.
+        if (!stored) return { 
+            maxUnlockedIndex: 1, // 0 = Día 1, 1 = Día 2 (DESBLOQUEADO POR DEFECTO)
+            currentViewIndex: 1, // Empieza mostrando el Día 2 directamente
+            lastVisitDate: new Date().toDateString() 
+        };
         return JSON.parse(stored);
       }
 
@@ -155,54 +139,38 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       }
 
-      /* --- NAVEGACIÓN --- */
-      function goToIntro() {
+      /* --- FUNCIÓN DE ENTRADA DIRECTA --- */
+      function enterApp() {
         const state = getAppState();
-        document.getElementById('welcome-view').hidden = true;
-
-        if (!state.introPlayed) {
-            document.getElementById('intro-view').hidden = false;
-            document.getElementById('intro-view').classList.add('fade-in');
-        } else {
-            // Si ya vio intro, vamos directo a mensajes
-            checkDailyProgress(state);
-            showCurrentMessage(state);
-            document.getElementById('player-view').hidden = false;
-            document.getElementById('player-view').classList.add('fade-in');
-        }
-      }
-
-      function goToMessages() {
-        const state = getAppState();
-        document.getElementById('intro-audio').pause();
-        state.introPlayed = true;
-        saveAppState(state);
-
-        document.getElementById('intro-view').hidden = true;
         
-        checkDailyProgress(state); 
+        // Ocultamos bienvenida
+        const welcomeView = document.getElementById('welcome-view');
+        welcomeView.style.display = 'none';
+
+        // Revisamos si corresponde desbloquear más días (por si volvemos en el Día 3)
+        checkDailyProgress(state);
+        
+        // Mostramos mensajes
         showCurrentMessage(state);
-        
-        document.getElementById('player-view').hidden = false;
-        document.getElementById('player-view').classList.add('fade-in');
+        const playerView = document.getElementById('player-view');
+        playerView.hidden = false;
+        playerView.classList.add('fade-in');
       }
 
-      /* --- LÓGICA DE DÍAS Y DESBLOQUEO --- */
+      /* --- LÓGICA DE PROGRESO --- */
       function checkDailyProgress(state) {
         const today = new Date().toDateString();
         
-        // Si es un día diferente al último que entró...
         if (state.lastVisitDate !== null && state.lastVisitDate !== today) {
-            // Y no ha llegado al final de los mensajes...
             if (state.maxUnlockedIndex < messages.length - 1) {
-                state.maxUnlockedIndex++; // DESBLOQUEA EL SIGUIENTE
+                state.maxUnlockedIndex++; 
             }
         }
-        
-        // Actualizamos fecha de última visita
         state.lastVisitDate = today;
         
-        // Por defecto, mostramos lo más nuevo que tenga desbloqueado
+        // Si ya tiene desbloqueado el 2 (índice 1), nos aseguramos que vea ese
+        // a menos que ella haya navegado manualmente antes.
+        // Pero por seguridad, mostremos el más reciente desbloqueado.
         state.currentViewIndex = state.maxUnlockedIndex;
         
         saveAppState(state);
@@ -231,7 +199,6 @@
         container.innerHTML = renderCard(msg, state);
       }
 
-      /* --- RENDERIZADO --- */
       function renderCard(msg, state) {
         let audioHTML = '';
         if (Array.isArray(msg.audio)) {
@@ -293,14 +260,6 @@
             audio.parentElement.querySelector('.error-msg').style.display = 'block';
          }
       }
-      
-      document.addEventListener('DOMContentLoaded', () => {
-        const state = getAppState();
-        if (state.introPlayed) {
-           document.getElementById('welcome-title').innerText = "Hola de nuevo, Isa";
-           document.getElementById('welcome-text').innerText = "Tu mensaje está listo.";
-        }
-      });
     </script>
   </body>
 </html>
