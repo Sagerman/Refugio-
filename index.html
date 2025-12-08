@@ -113,23 +113,29 @@
         {
           id: 2,
           title: 'Día 2: Cargas',
-          verse: '"Todo lo hizo hermoso en su tiempo; y ha puesto eternidad en el corazón de ellos, sin que alcance el hombre a entender la obra que ha hecho Dios desde el principio hasta el fin." - Eclesiastés 3:11',
-          message: 'Aunque ahora no veas el cuadro completo, confía en que Dios está haciendo algo hermoso con tu vida. Su reloj no se atrasa ni se adelanta; Él sabe exactamente lo que hace contigo. Mantente firme en medio del proceso.',
+          verse: '"Todo lo hizo hermoso en su tiempo; y ha puesto eternidad en el corazón de ellos..." - Eclesiastés 3:11',
+          message: 'Aunque ahora no veas el cuadro completo, confía en que Dios está haciendo algo hermoso con tu vida. Su reloj no se atrasa ni se adelanta.',
           audio: 'audios/2.mp3', 
+        },
+        {
+          id: 3,
+          title: 'Día 3: El Abrazo',
+          verse: '"Y cuando aún estaba lejos, lo vio su padre, y fue movido a misericordia, y corrió, y se echó sobre su cuello, y le besó." - Lucas 15:20',
+          message: 'A veces creemos que debemos estar "perfectos" para acercarnos a Dios. Pero Él no espera a que te limpies; Él corre a abrazarte tal como estás ahora mismo.',
+          audio: 'audios/3.mp3', 
         },
       ];
 
-      /* CAMBIÉ LA CLAVE PARA REINICIAR Y APLICAR CAMBIOS */
-      const STORAGE_KEY = 'isa_espacio_unlocked_v1'; 
+      /* CAMBIÉ LA CLAVE PARA FORZAR LA ACTUALIZACIÓN EN SU CELULAR */
+      const STORAGE_KEY = 'isa_espacio_day3_unlocked_now'; 
 
       /* --- CONFIGURACIÓN INICIAL --- */
       function getAppState() {
         const stored = localStorage.getItem(STORAGE_KEY);
-        // TRUCO: Aquí ponemos maxUnlockedIndex en 1 (que es el Día 2)
-        // Así, aunque sea nueva, ya tiene el Día 2 habilitado.
+        // AQUÍ ESTÁ EL CAMBIO: Ponemos '2' (que es el Día 3) como desbloqueado
         if (!stored) return { 
-            maxUnlockedIndex: 1, // 0 = Día 1, 1 = Día 2 (DESBLOQUEADO POR DEFECTO)
-            currentViewIndex: 1, // Empieza mostrando el Día 2 directamente
+            maxUnlockedIndex: 2, // 0=Día1, 1=Día2, 2=Día3 (YA DESBLOQUEADO)
+            currentViewIndex: 2, // Muestra el Día 3 de una vez
             lastVisitDate: new Date().toDateString() 
         };
         return JSON.parse(stored);
@@ -143,14 +149,11 @@
       function enterApp() {
         const state = getAppState();
         
-        // Ocultamos bienvenida
         const welcomeView = document.getElementById('welcome-view');
         welcomeView.style.display = 'none';
 
-        // Revisamos si corresponde desbloquear más días (por si volvemos en el Día 3)
         checkDailyProgress(state);
         
-        // Mostramos mensajes
         showCurrentMessage(state);
         const playerView = document.getElementById('player-view');
         playerView.hidden = false;
@@ -168,10 +171,11 @@
         }
         state.lastVisitDate = today;
         
-        // Si ya tiene desbloqueado el 2 (índice 1), nos aseguramos que vea ese
-        // a menos que ella haya navegado manualmente antes.
-        // Pero por seguridad, mostremos el más reciente desbloqueado.
-        state.currentViewIndex = state.maxUnlockedIndex;
+        // Si tiene desbloqueado el día 3, aseguremos que lo vea
+        // (Aunque el getAppState ya lo fuerza, esto es doble seguridad)
+        if (state.currentViewIndex < state.maxUnlockedIndex) {
+             state.currentViewIndex = state.maxUnlockedIndex;
+        }
         
         saveAppState(state);
       }
