@@ -101,13 +101,14 @@
     <footer><p>Con cariño ✨</p></footer>
 
     <script>
-      /* --- TUS MENSAJES --- */
+      /* --- TUS MENSAJES (MEZCLA DE MP3 Y OPUS) --- */
       const messages = [
         {
           id: 1, 
           title: 'Día 1: Calma (Parte 1 y 2)',
           verse: '"Porque yo sé los pensamientos que tengo acerca de vosotros..." - Jeremías 29:11',
           message: 'Hoy iniciamos con algo importante. Te dejé dos notas de voz. Escucha la primera y luego la segunda.',
+          /* MP3 */
           audio: ['audios/1.mp3', 'audios/1.2.mp3'], 
         },
         {
@@ -115,6 +116,7 @@
           title: 'Día 2: Cargas',
           verse: '"Todo lo hizo hermoso en su tiempo; y ha puesto eternidad en el corazón de ellos..." - Eclesiastés 3:11',
           message: 'Aunque ahora no veas el cuadro completo, confía en que Dios está haciendo algo hermoso con tu vida. Su reloj no se atrasa ni se adelanta.',
+          /* MP3 */
           audio: 'audios/2.mp3', 
         },
         {
@@ -122,20 +124,19 @@
           title: 'Día 3: El Abrazo',
           verse: '"Y cuando aún estaba lejos, lo vio su padre, y fue movido a misericordia, y corrió, y se echó sobre su cuello, y le besó." - Lucas 15:20',
           message: 'A veces creemos que debemos estar "perfectos" para acercarnos a Dios. Pero Él no espera a que te limpies; Él corre a abrazarte tal como estás ahora mismo.',
-          audio: 'audios/3.mp3', 
+          /* OPUS (NUEVO) */
+          audio: 'audios/3.opus', 
         },
       ];
 
-      /* CAMBIÉ LA CLAVE PARA FORZAR LA ACTUALIZACIÓN EN SU CELULAR */
-      const STORAGE_KEY = 'isa_espacio_day3_unlocked_now'; 
+      const STORAGE_KEY = 'isa_espacio_dia3_opus_final'; 
 
-      /* --- CONFIGURACIÓN INICIAL --- */
+      /* CONFIGURACIÓN INICIAL (Todo desbloqueado hasta el día 3) */
       function getAppState() {
         const stored = localStorage.getItem(STORAGE_KEY);
-        // AQUÍ ESTÁ EL CAMBIO: Ponemos '2' (que es el Día 3) como desbloqueado
         if (!stored) return { 
-            maxUnlockedIndex: 2, // 0=Día1, 1=Día2, 2=Día3 (YA DESBLOQUEADO)
-            currentViewIndex: 2, // Muestra el Día 3 de una vez
+            maxUnlockedIndex: 2, // Desbloqueado hasta Día 3
+            currentViewIndex: 2, // Muestra el Día 3 de entrada
             lastVisitDate: new Date().toDateString() 
         };
         return JSON.parse(stored);
@@ -145,25 +146,20 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       }
 
-      /* --- FUNCIÓN DE ENTRADA DIRECTA --- */
       function enterApp() {
         const state = getAppState();
+        document.getElementById('welcome-view').style.display = 'none';
         
-        const welcomeView = document.getElementById('welcome-view');
-        welcomeView.style.display = 'none';
-
         checkDailyProgress(state);
-        
         showCurrentMessage(state);
+        
         const playerView = document.getElementById('player-view');
         playerView.hidden = false;
         playerView.classList.add('fade-in');
       }
 
-      /* --- LÓGICA DE PROGRESO --- */
       function checkDailyProgress(state) {
         const today = new Date().toDateString();
-        
         if (state.lastVisitDate !== null && state.lastVisitDate !== today) {
             if (state.maxUnlockedIndex < messages.length - 1) {
                 state.maxUnlockedIndex++; 
@@ -171,10 +167,8 @@
         }
         state.lastVisitDate = today;
         
-        // Si tiene desbloqueado el día 3, aseguremos que lo vea
-        // (Aunque el getAppState ya lo fuerza, esto es doble seguridad)
         if (state.currentViewIndex < state.maxUnlockedIndex) {
-             state.currentViewIndex = state.maxUnlockedIndex;
+            state.currentViewIndex = state.maxUnlockedIndex;
         }
         
         saveAppState(state);
@@ -205,28 +199,29 @@
 
       function renderCard(msg, state) {
         let audioHTML = '';
+        
+        // HTML genérico para audio (detecta mp3 u opus automáticamente)
+        const createAudioTag = (src) => `
+            <div class="audio-wrapper">
+                <audio controls class="custom-audio" onerror="mostrarError(this)">
+                    <source src="${src}">
+                </audio>
+                <p class="error-msg">⚠️ No encuentro '${src}'</p>
+            </div>
+        `;
+
         if (Array.isArray(msg.audio)) {
             msg.audio.forEach((src, index) => {
                 audioHTML += `
                 <div class="audio-container">
                     <p class="audio-label">Parte ${index + 1}</p>
-                    <div class="audio-wrapper">
-                        <audio controls class="custom-audio" onerror="mostrarError(this)">
-                            <source src="${src}" type="audio/mpeg">
-                        </audio>
-                        <p class="error-msg">⚠️ No encuentro '${src}'</p>
-                    </div>
+                    ${createAudioTag(src)}
                 </div>`;
             });
         } else {
             audioHTML = `
             <div class="audio-container">
-                <div class="audio-wrapper">
-                    <audio controls class="custom-audio" onerror="mostrarError(this)">
-                        <source src="${msg.audio}" type="audio/mpeg">
-                    </audio>
-                    <p class="error-msg">⚠️ No encuentro '${msg.audio}'</p>
-                </div>
+                ${createAudioTag(msg.audio)}
             </div>`;
         }
 
