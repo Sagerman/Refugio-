@@ -124,7 +124,6 @@
           message: 'A veces creemos que debemos estar "perfectos" para acercarnos a Dios. Pero Él no espera a que te limpies; Él corre a abrazarte tal como estás ahora mismo.',
           audio: 'audios/3.opus', 
         },
-        /* --- DÍA 4 CORREGIDO (JUAN 4:14) --- */
         {
           id: 4,
           title: 'Día 4: La Sed Real',
@@ -132,18 +131,26 @@
           message: 'El mundo ofrece muchas cosas para calmar nuestra sed, pero siempre volvemos a sentirnos vacíos. Solo hay una fuente que satisface el alma para siempre y te da paz verdadera.',
           audio: 'audios/4.opus', 
         },
+        /* --- DÍA 5 AGREGADO --- */
+        {
+          id: 5,
+          title: 'Día 5: Amor Eterno',
+          verse: '"Con amor eterno te he amado; por tanto, te prolongué mi misericordia." - Jeremías 31:3',
+          message: 'Afuera, el amor suele tener condiciones: te quieren "si" haces esto o aquello. Pero el amor de Dios no depende de tus logros ni de tus errores. Es un regalo eterno que no se gasta.',
+          audio: 'audios/5.opus', 
+        },
       ];
 
-      /* CLAVE ACTUALIZADA PARA DÍA 4 */
-      const STORAGE_KEY = 'isa_espacio_day4_corrected'; 
+      /* CLAVE ACTUALIZADA PARA DÍA 5 */
+      const STORAGE_KEY = 'isa_espacio_day5_ready'; 
 
-      /* CONFIGURACIÓN INICIAL (Día 4 desbloqueado) */
+      /* CONFIGURACIÓN INICIAL (Día 5 desbloqueado) */
       function getAppState() {
         const stored = localStorage.getItem(STORAGE_KEY);
-        // maxUnlockedIndex: 3 (corresponde al 4to elemento, osea Día 4)
+        // maxUnlockedIndex: 4 (0=Día1, 1=Día2, 2=Día3, 3=Día4, 4=Día5)
         if (!stored) return { 
-            maxUnlockedIndex: 3, 
-            currentViewIndex: 3, 
+            maxUnlockedIndex: 4, 
+            currentViewIndex: 4, 
             lastVisitDate: new Date().toDateString() 
         };
         return JSON.parse(stored);
