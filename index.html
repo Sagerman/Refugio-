@@ -17,7 +17,6 @@
         padding: 20px;
       }
 
-      /* Animación suave */
       .animate-pulse-glow {
         font-size: 4rem;
         margin-bottom: 20px;
@@ -46,7 +45,6 @@
       
       .error-msg { color: crimson; font-size: 0.8rem; margin-top: 5px; display: none; }
 
-      /* Navegación */
       .nav-container {
         display: flex;
         justify-content: space-between;
@@ -128,29 +126,36 @@
           id: 4,
           title: 'Día 4: La Sed Real',
           verse: '"Mas el que bebiere del agua que yo le daré, no tendrá sed jamás." - Juan 4:14',
-          message: 'El mundo ofrece muchas cosas para calmar nuestra sed, pero siempre volvemos a sentirnos vacíos. Solo hay una fuente que satisface el alma para siempre y te da paz verdadera.',
+          message: 'El mundo ofrece muchas cosas para calmar nuestra sed, pero siempre volvemos a sentirnos vacíos. Solo hay una fuente que satisface el alma para siempre.',
           audio: 'audios/4.opus', 
         },
-        /* --- DÍA 5 AGREGADO --- */
         {
           id: 5,
           title: 'Día 5: Amor Eterno',
           verse: '"Con amor eterno te he amado; por tanto, te prolongué mi misericordia." - Jeremías 31:3',
-          message: 'Afuera, el amor suele tener condiciones: te quieren "si" haces esto o aquello. Pero el amor de Dios no depende de tus logros ni de tus errores. Es un regalo eterno que no se gasta.',
+          message: 'Afuera, el amor suele tener condiciones. Pero el amor de Dios no depende de tus logros ni de tus errores. Es un regalo eterno que no se gasta.',
           audio: 'audios/5.opus', 
+        },
+        /* --- DÍA 6 AGREGADO --- */
+        {
+          id: 6,
+          title: 'Día 6: Tus Lágrimas',
+          verse: '"Tú llevas la cuenta de todas mis angustias... has registrado cada una de mis lágrimas en tu libro." - Salmos 56:8',
+          message: 'No tienes que esconder tu tristeza. Dios no ignora tu dolor; Él atesora cada lágrima porque tú eres valiosa para Él. No estás llorando sola.',
+          audio: 'audios/6.opus', 
         },
       ];
 
-      /* CLAVE ACTUALIZADA PARA DÍA 5 */
-      const STORAGE_KEY = 'isa_espacio_day5_ready'; 
+      /* CLAVE ACTUALIZADA PARA DÍA 6 */
+      const STORAGE_KEY = 'isa_espacio_day6_tears'; 
 
-      /* CONFIGURACIÓN INICIAL (Día 5 desbloqueado) */
+      /* CONFIGURACIÓN INICIAL (Día 6 desbloqueado) */
       function getAppState() {
         const stored = localStorage.getItem(STORAGE_KEY);
-        // maxUnlockedIndex: 4 (0=Día1, 1=Día2, 2=Día3, 3=Día4, 4=Día5)
+        // maxUnlockedIndex: 5 (corresponde al Día 6)
         if (!stored) return { 
-            maxUnlockedIndex: 4, 
-            currentViewIndex: 4, 
+            maxUnlockedIndex: 5, 
+            currentViewIndex: 5, 
             lastVisitDate: new Date().toDateString() 
         };
         return JSON.parse(stored);
