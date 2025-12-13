@@ -65,7 +65,7 @@
       .nav-btn:hover { color: #5e3375; transform: scale(1.1); }
       .nav-btn:disabled { color: #e2e8f0; cursor: default; transform: none; }
       
-      /* Estilos para el nuevo botón final */
+      /* Estilos para el nuevo botón final (AHORA MORADO) */
       .final-action-container {
         margin-top: 30px;
         border-top: 1px dashed #e2e8f0;
@@ -73,7 +73,8 @@
         text-align: center;
       }
       .whatsapp-btn {
-        background-color: #4CAF50; /* Color verde WhatsApp */
+        /* CAMBIO: Ahora es morado igual que el tema */
+        background: linear-gradient(to right, #b39ddb, #9575cd);
         color: white;
         border: none;
         padding: 12px 25px;
@@ -83,14 +84,15 @@
         width: 100%;
         max-width: 300px;
         margin-top: 15px;
-        box-shadow: 0 4px 10px rgba(76, 175, 80, 0.4);
-        transition: background-color 0.2s;
-        text-decoration: none; /* Asegurar que no tenga subrayado */
+        box-shadow: 0 8px 20px rgba(149, 117, 205, 0.4); /* Sombra morada */
+        transition: all 0.3s ease;
+        text-decoration: none; 
         display: inline-block;
       }
       .whatsapp-btn:hover {
-        background-color: #45a049;
-        transform: translateY(-2px);
+        background: linear-gradient(to right, #9575cd, #7e57c2);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(149, 117, 205, 0.6);
       }
     </style>
   </head>
@@ -128,10 +130,10 @@
     <script>
       /* --- CONFIGURACIÓN DE WHATSAPP --- */
       const WHATSAPP_NUMBER = '573142101197'; 
-      const MESSAGE_TEXT = encodeURIComponent('¡Sí! ¡Quiero que me acompañes otra semana más! 🫂');
+      const MESSAGE_TEXT = encodeURIComponent('¡Sí! Quiero que me acompañes otra semana más con los mensajes de ánimo. Gracias. 💜');
       const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${MESSAGE_TEXT}`;
 
-      /* --- LISTA DE MENSAJES (FINAL) --- */
+      /* --- LISTA DE MENSAJES --- */
       const messages = [
         {
           id: 1, 
@@ -182,19 +184,19 @@
           message: 'No necesitas copiar a nadie más. El Artista que creó el universo te diseñó a ti con un propósito único. Eres una obra de arte original.',
           audio: 'audios/7.opus', 
         },
-        /* --- DÍA 8: FINAL CON ARCHIVOS .OGA --- */
+        /* --- DÍA 8: FINAL (USANDO TUS ARCHIVOS .OGA) --- */
         {
           id: 8,
           title: 'Día 8: La Puerta Siempre Abierta (Parte 1 y 2)',
           verse: '"He aquí, yo estoy a la puerta y llamo; si alguno oye mi voz y abre la puerta, entraré a él." - Apocalipsis 3:20',
           message: 'Hoy cerramos esta serie de 8 días. Te dejé dos notas de voz: una con el mensaje de cierre y otra con una propuesta especial para que la serie continúe.',
-          /* Aquí usamos tus archivos tal cual: 8.oga y 8.2.oga */
+          /* Usamos los .oga que ya tienes en la carpeta */
           audio: ['audios/8.oga', 'audios/8.2.oga'], 
         },
       ];
 
-      /* CLAVE FINAL */
-      const STORAGE_KEY = 'isa_espacio_final_oga_v2'; 
+      /* CLAVE FINAL ACTUALIZADA (Para forzar que vea el cambio de color) */
+      const STORAGE_KEY = 'isa_espacio_final_purple_v3'; 
 
       function getAppState() {
         const stored = localStorage.getItem(STORAGE_KEY);
@@ -259,7 +261,6 @@
       function renderCard(msg, state) {
         let audioHTML = '';
         
-        // El navegador detectará .oga automáticamente sin problemas
         const createAudioTag = (src) => `
             <div class="audio-wrapper">
                 <audio controls class="custom-audio" onerror="mostrarError(this)">
@@ -287,7 +288,7 @@
         const hasPrev = state.currentViewIndex > 0;
         const hasNext = state.currentViewIndex < state.maxUnlockedIndex;
 
-        // Botón final para WhatsApp
+        // Botón final (Ahora con clase .whatsapp-btn que es morada)
         let finalActionHTML = '';
         if (msg.id === 8) {
             finalActionHTML = `
@@ -296,7 +297,7 @@
                         Si deseas que te siga acompañando una semana más, haz clic abajo:
                     </p>
                     <a href="${WHATSAPP_URL}" target="_blank" class="whatsapp-btn">
-                        Sí, quiero continuar 💬
+                        Sí, quiero continuar 💜
                     </a>
                 </div>
             `;
