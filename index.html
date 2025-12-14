@@ -65,7 +65,6 @@
       .nav-btn:hover { color: #5e3375; transform: scale(1.1); }
       .nav-btn:disabled { color: #e2e8f0; cursor: default; transform: none; }
       
-      /* Estilos para el nuevo botón final (AHORA MORADO) */
       .final-action-container {
         margin-top: 30px;
         border-top: 1px dashed #e2e8f0;
@@ -73,7 +72,6 @@
         text-align: center;
       }
       .whatsapp-btn {
-        /* CAMBIO: Ahora es morado igual que el tema */
         background: linear-gradient(to right, #b39ddb, #9575cd);
         color: white;
         border: none;
@@ -84,7 +82,7 @@
         width: 100%;
         max-width: 300px;
         margin-top: 15px;
-        box-shadow: 0 8px 20px rgba(149, 117, 205, 0.4); /* Sombra morada */
+        box-shadow: 0 8px 20px rgba(149, 117, 205, 0.4);
         transition: all 0.3s ease;
         text-decoration: none; 
         display: inline-block;
@@ -100,6 +98,8 @@
   <body>
     <div class="background-blob blob-1"></div>
     <div class="background-blob blob-2"></div>
+    
+    <audio id="bgMusic" loop hidden></audio>
 
     <main>
       
@@ -128,83 +128,34 @@
     <footer><p>Con cariño ✨</p></footer>
 
     <script>
-      /* --- CONFIGURACIÓN DE WHATSAPP --- */
-      const WHATSAPP_NUMBER = '573142101197'; 
+      /* --- CONFIGURACIÓN --- */
+      const WHATSAPP_NUMBER = '573142101197';
       const MESSAGE_TEXT = encodeURIComponent('¡Sí! Quiero seguir con esto. Gracias. 🫂');
       const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${MESSAGE_TEXT}`;
 
-      /* --- LISTA DE MENSAJES --- */
       const messages = [
-        {
-          id: 1, 
-          title: 'Día 1: Calma (Parte 1 y 2)',
-          verse: '"Porque yo sé los pensamientos que tengo acerca de vosotros..." - Jeremías 29:11',
-          message: 'Hoy iniciamos con algo importante. Te dejé dos notas de voz. Escucha la primera y luego la segunda.',
-          audio: ['audios/1.mp3', 'audios/1.2.mp3'], 
-        },
-        {
-          id: 2,
-          title: 'Día 2: Cargas',
-          verse: '"Todo lo hizo hermoso en su tiempo; y ha puesto eternidad en el corazón de ellos..." - Eclesiastés 3:11',
-          message: 'Aunque ahora no veas el cuadro completo, confía en que Dios está haciendo algo hermoso con tu vida. Su reloj no se atrasa ni se adelanta.',
-          audio: 'audios/2.opus', 
-        },
-        {
-          id: 3,
-          title: 'Día 3: El Abrazo',
-          verse: '"Y cuando aún estaba lejos, lo vio su padre... y corrió, y se echó sobre su cuello, y le besó." - Lucas 15:20',
-          message: 'A veces creemos que debemos estar "perfectos" para acercarnos a Dios. Pero Él no espera a que te limpies; Él corre a abrazarte tal como estás.',
-          audio: 'audios/3.opus', 
-        },
-        {
-          id: 4,
-          title: 'Día 4: La Sed Real',
-          verse: '"Mas el que bebiere del agua que yo le daré, no tendrá sed jamás." - Juan 4:14',
-          message: 'El mundo ofrece muchas cosas para calmar nuestra sed, pero siempre volvemos a sentirnos vacíos. Solo hay una fuente que satisface el alma para siempre.',
-          audio: 'audios/4.opus', 
-        },
-        {
-          id: 5,
-          title: 'Día 5: Amor Eterno',
-          verse: '"Con amor eterno te he amado; por tanto, te prolongué mi misericordia." - Jeremías 31:3',
-          message: 'Afuera, el amor suele tener condiciones. Pero el amor de Dios no depende de tus logros ni de tus errores. Es un regalo eterno que no se gasta.',
-          audio: 'audios/5.opus', 
-        },
-        {
-          id: 6,
-          title: 'Día 6: Tus Lágrimas',
-          verse: '"Tú llevas la cuenta de todas mis angustias... has registrado cada una de mis lágrimas en tu libro." - Salmos 56:8',
-          message: 'No tienes que esconder tu tristeza. Dios no ignora tu dolor; Él atesora cada lágrima porque tú eres valiosa para Él.',
-          audio: 'audios/6.opus', 
-        },
-        {
-          id: 7,
-          title: 'Día 7: Obra Maestra',
-          verse: '"Te alabaré; porque formidables, maravillosas son tus obras." - Salmos 139:14',
-          message: 'No necesitas copiar a nadie más. El Artista que creó el universo te diseñó a ti con un propósito único. Eres una obra de arte original.',
-          audio: 'audios/7.opus', 
-        },
-        /* --- DÍA 8: FINAL (USANDO TUS ARCHIVOS .OGA) --- */
+        { id: 1, title: 'Día 1: Calma (Parte 1 y 2)', verse: '"Porque yo sé los pensamientos que tengo acerca de vosotros..." - Jeremías 29:11', message: 'Hoy iniciamos con algo importante. Te dejé dos notas de voz. Escucha la primera y luego la segunda.', audio: ['audios/1.mp3', 'audios/1.2.mp3'] },
+        { id: 2, title: 'Día 2: Cargas', verse: '"Todo lo hizo hermoso en su tiempo..." - Eclesiastés 3:11', message: 'Aunque ahora no veas el cuadro completo, confía en que Dios está haciendo algo hermoso con tu vida.', audio: 'audios/2.opus' },
+        { id: 3, title: 'Día 3: El Abrazo', verse: '"Y cuando aún estaba lejos, lo vio su padre... y corrió..." - Lucas 15:20', message: 'A veces creemos que debemos estar "perfectos" para acercarnos a Dios. Pero Él corre a abrazarte tal como estás.', audio: 'audios/3.opus' },
+        { id: 4, title: 'Día 4: La Sed Real', verse: '"Mas el que bebiere del agua que yo le daré, no tendrá sed jamás." - Juan 4:14', message: 'Solo hay una fuente que satisface el alma para siempre.', audio: 'audios/4.opus' },
+        { id: 5, title: 'Día 5: Amor Eterno', verse: '"Con amor eterno te he amado..." - Jeremías 31:3', message: 'El amor de Dios no depende de tus logros ni de tus errores. Es un regalo eterno que no se gasta.', audio: 'audios/5.opus' },
+        { id: 6, title: 'Día 6: Tus Lágrimas', verse: '"Tú llevas la cuenta de todas mis angustias..." - Salmos 56:8', message: 'Dios no ignora tu dolor; Él atesora cada lágrima porque tú eres valiosa para Él.', audio: 'audios/6.opus' },
+        { id: 7, title: 'Día 7: Obra Maestra', verse: '"Te alabaré; porque formidables, maravillosas son tus obras." - Salmos 139:14', message: 'Eres una obra de arte original diseñada con un propósito único.', audio: 'audios/7.opus' },
+        /* --- DÍA 8 (FINAL) --- */
         {
           id: 8,
-          title: 'Día 8: La Puerta Siempre Abierta (Parte 1 y 2)',
+          title: 'Día 8: La Puerta Siempre Abierta',
           verse: '"He aquí, yo estoy a la puerta y llamo; si alguno oye mi voz y abre la puerta, entraré a él." - Apocalipsis 3:20',
-          message: 'Hoy cerramos esta serie de 8 días. Te dejé dos notas de voz: una con el mensaje de cierre y otra con una propuesta especial para que la serie continúe.',
-          /* Usamos los .oga que ya tienes en la carpeta */
+          message: 'Hoy cerramos esta serie. Te dejo dos notas de voz y una canción especial de fondo. Escúchalo con el corazón.',
           audio: ['audios/8.oga', 'audios/8.2.oga'], 
         },
       ];
 
-      /* CLAVE FINAL ACTUALIZADA (Para forzar que vea el cambio de color) */
-      const STORAGE_KEY = 'isa_espacio_final_purple_v3'; 
+      const STORAGE_KEY = 'isa_espacio_music_final_v1'; 
 
       function getAppState() {
         const stored = localStorage.getItem(STORAGE_KEY);
-        if (!stored) return { 
-            maxUnlockedIndex: 7, // DÍA 8 DESBLOQUEADO
-            currentViewIndex: 7, 
-            lastVisitDate: new Date().toDateString() 
-        };
+        if (!stored) return { maxUnlockedIndex: 7, currentViewIndex: 7, lastVisitDate: new Date().toDateString() };
         return JSON.parse(stored);
       }
 
@@ -225,21 +176,16 @@
       function checkDailyProgress(state) {
         const today = new Date().toDateString();
         if (state.lastVisitDate !== null && state.lastVisitDate !== today) {
-            if (state.maxUnlockedIndex < messages.length - 1) {
-                state.maxUnlockedIndex++; 
-            }
+            if (state.maxUnlockedIndex < messages.length - 1) state.maxUnlockedIndex++; 
         }
         state.lastVisitDate = today;
-        if (state.currentViewIndex < state.maxUnlockedIndex) {
-            state.currentViewIndex = state.maxUnlockedIndex;
-        }
+        if (state.currentViewIndex < state.maxUnlockedIndex) state.currentViewIndex = state.maxUnlockedIndex;
         saveAppState(state);
       }
 
       function changeMessage(direction) {
         const state = getAppState();
         const newIndex = state.currentViewIndex + direction;
-
         if (newIndex >= 0 && newIndex <= state.maxUnlockedIndex) {
             state.currentViewIndex = newIndex;
             saveAppState(state);
@@ -252,43 +198,80 @@
         }
       }
 
+      /* --- LÓGICA DE MÚSICA Y RENDERIZADO --- */
       function showCurrentMessage(state) {
         const container = document.getElementById('messageContainer');
         const msg = messages[state.currentViewIndex];
+        const bgMusic = document.getElementById('bgMusic');
+
+        // LÓGICA DE MÚSICA PARA EL DÍA 8
+        if (msg.id === 8) {
+            // Si no se está reproduciendo ya la canción correcta, la cargamos
+            if (!bgMusic.src.includes('cancion.mp3')) {
+                bgMusic.src = 'audios/cancion.mp3';
+                bgMusic.volume = 1.0; 
+                bgMusic.currentTime = 60; // Inicia en el minuto 1:00 (60 segundos)
+                bgMusic.play().catch(e => console.log("Autoplay bloqueado hasta interacción"));
+            } else if (bgMusic.paused) {
+                bgMusic.play();
+            }
+        } else {
+            // Si no es el día 8, pausamos la música suavemente
+            fadeMusic(bgMusic, 0, () => bgMusic.pause());
+        }
+
         container.innerHTML = renderCard(msg, state);
+
+        // Agregamos el efecto "Ducking" (bajar volumen) a los audios de voz
+        if (msg.id === 8) {
+            const voiceAudios = container.querySelectorAll('audio.custom-audio');
+            voiceAudios.forEach(audio => {
+                audio.onplay = () => fadeMusic(bgMusic, 0.1); // Baja música al 10%
+                audio.onpause = () => fadeMusic(bgMusic, 1.0); // Sube música al 100%
+                audio.onended = () => fadeMusic(bgMusic, 1.0); // Sube música al 100%
+            });
+        }
+      }
+
+      // Función para cambiar volumen suavemente
+      let fadeInterval;
+      function fadeMusic(audio, targetVolume, callback) {
+        if (!audio) return;
+        clearInterval(fadeInterval);
+        fadeInterval = setInterval(() => {
+            let current = audio.volume;
+            if (Math.abs(current - targetVolume) < 0.05) {
+                audio.volume = targetVolume;
+                clearInterval(fadeInterval);
+                if (callback) callback();
+            } else if (current > targetVolume) {
+                audio.volume -= 0.05;
+            } else {
+                audio.volume += 0.05;
+            }
+        }, 100); // Ajuste cada 100ms
       }
 
       function renderCard(msg, state) {
         let audioHTML = '';
-        
         const createAudioTag = (src) => `
             <div class="audio-wrapper">
                 <audio controls class="custom-audio" onerror="mostrarError(this)">
                     <source src="${src}">
                 </audio>
                 <p class="error-msg">⚠️ No encuentro '${src}'</p>
-            </div>
-        `;
+            </div>`;
 
         if (Array.isArray(msg.audio)) {
             msg.audio.forEach((src, index) => {
-                audioHTML += `
-                <div class="audio-container">
-                    <p class="audio-label">Parte ${index + 1}</p>
-                    ${createAudioTag(src)}
-                </div>`;
+                audioHTML += `<div class="audio-container"><p class="audio-label">Parte ${index + 1}</p>${createAudioTag(src)}</div>`;
             });
         } else {
-            audioHTML = `
-            <div class="audio-container">
-                ${createAudioTag(msg.audio)}
-            </div>`;
+            audioHTML = `<div class="audio-container">${createAudioTag(msg.audio)}</div>`;
         }
 
         const hasPrev = state.currentViewIndex > 0;
         const hasNext = state.currentViewIndex < state.maxUnlockedIndex;
-
-        // Botón final (Ahora con clase .whatsapp-btn que es morada)
         let finalActionHTML = '';
         if (msg.id === 8) {
             finalActionHTML = `
@@ -296,11 +279,8 @@
                     <p style="color: #5e3375; font-weight: 600; font-size: 1.1rem; margin-bottom: 10px;">
                         Si deseas que te siga acompañando una semana más, haz clic abajo:
                     </p>
-                    <a href="${WHATSAPP_URL}" target="_blank" class="whatsapp-btn">
-                        Sí, quiero continuar 💜
-                    </a>
-                </div>
-            `;
+                    <a href="${WHATSAPP_URL}" target="_blank" class="whatsapp-btn">Sí, quiero continuar 💜</a>
+                </div>`;
         }
 
         return `
@@ -311,30 +291,17 @@
             <p class="verse-text">${msg.verse}</p>
           </div>
           <p class="message-text">${msg.message}</p>
-          
           ${finalActionHTML}
-
           <div class="nav-container" style="justify-content: center;">
-             <button class="nav-btn" onclick="changeMessage(-1)" ${!hasPrev ? 'disabled' : ''}>
-                ${hasPrev ? '⬅ Anterior' : ''}
-             </button>
-             
-             <span style="font-size: 0.8rem; color: #aaa; align-self: center; margin: 0 10px;">
-                ${state.currentViewIndex + 1} / ${state.maxUnlockedIndex + 1}
-             </span>
-
-             <button class="nav-btn" onclick="changeMessage(1)" ${!hasNext ? 'disabled' : ''}>
-                ${hasNext ? 'Siguiente ➡' : ''}
-             </button>
+             <button class="nav-btn" onclick="changeMessage(-1)" ${!hasPrev ? 'disabled' : ''}>${hasPrev ? '⬅ Anterior' : ''}</button>
+             <span style="font-size: 0.8rem; color: #aaa; align-self: center; margin: 0 10px;">${state.currentViewIndex + 1} / ${state.maxUnlockedIndex + 1}</span>
+             <button class="nav-btn" onclick="changeMessage(1)" ${!hasNext ? 'disabled' : ''}>${hasNext ? 'Siguiente ➡' : ''}</button>
           </div>
-        </article>
-        `;
+        </article>`;
       }
 
       function mostrarError(audio) {
-         if(audio.parentElement.querySelector('.error-msg')) {
-            audio.parentElement.querySelector('.error-msg').style.display = 'block';
-         }
+         if(audio.parentElement.querySelector('.error-msg')) audio.parentElement.querySelector('.error-msg').style.display = 'block';
       }
     </script>
   </body>
