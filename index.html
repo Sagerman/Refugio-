@@ -151,7 +151,7 @@
         },
       ];
 
-      const STORAGE_KEY = 'isa_espacio_music_final_v1'; 
+      const STORAGE_KEY = 'isa_espacio_music_volume_fix_v2'; 
 
       function getAppState() {
         const stored = localStorage.getItem(STORAGE_KEY);
@@ -198,49 +198,46 @@
         }
       }
 
-      /* --- LÓGICA DE MÚSICA Y RENDERIZADO --- */
+      /* --- LÓGICA DE MÚSICA AJUSTADA --- */
       function showCurrentMessage(state) {
         const container = document.getElementById('messageContainer');
         const msg = messages[state.currentViewIndex];
         const bgMusic = document.getElementById('bgMusic');
 
-        // LÓGICA DE MÚSICA PARA EL DÍA 8
         if (msg.id === 8) {
-            // Si no se está reproduciendo ya la canción correcta, la cargamos
             if (!bgMusic.src.includes('cancion.mp3')) {
                 bgMusic.src = 'audios/cancion.mp3';
                 bgMusic.volume = 1.0; 
-                bgMusic.currentTime = 60; // Inicia en el minuto 1:00 (60 segundos)
-                bgMusic.play().catch(e => console.log("Autoplay bloqueado hasta interacción"));
+                bgMusic.currentTime = 60; // Minuto 1:00
+                bgMusic.play().catch(e => console.log("Autoplay bloqueado"));
             } else if (bgMusic.paused) {
                 bgMusic.play();
             }
         } else {
-            // Si no es el día 8, pausamos la música suavemente
             fadeMusic(bgMusic, 0, () => bgMusic.pause());
         }
 
         container.innerHTML = renderCard(msg, state);
 
-        // Agregamos el efecto "Ducking" (bajar volumen) a los audios de voz
         if (msg.id === 8) {
             const voiceAudios = container.querySelectorAll('audio.custom-audio');
             voiceAudios.forEach(audio => {
-                audio.onplay = () => fadeMusic(bgMusic, 0.1); // Baja música al 10%
-                audio.onpause = () => fadeMusic(bgMusic, 1.0); // Sube música al 100%
-                audio.onended = () => fadeMusic(bgMusic, 1.0); // Sube música al 100%
+                // AQUÍ EL CAMBIO: Baja al 2% (0.02) en vez del 10% (0.1)
+                audio.onplay = () => fadeMusic(bgMusic, 0.02); 
+                audio.onpause = () => fadeMusic(bgMusic, 1.0); 
+                audio.onended = () => fadeMusic(bgMusic, 1.0); 
             });
         }
       }
 
-      // Función para cambiar volumen suavemente
       let fadeInterval;
       function fadeMusic(audio, targetVolume, callback) {
         if (!audio) return;
         clearInterval(fadeInterval);
         fadeInterval = setInterval(() => {
             let current = audio.volume;
-            if (Math.abs(current - targetVolume) < 0.05) {
+            // Pasos más pequeños (0.02) para que baje suave hasta el 2%
+            if (Math.abs(current - targetVolume) < 0.03) {
                 audio.volume = targetVolume;
                 clearInterval(fadeInterval);
                 if (callback) callback();
@@ -249,7 +246,7 @@
             } else {
                 audio.volume += 0.05;
             }
-        }, 100); // Ajuste cada 100ms
+        }, 100);
       }
 
       function renderCard(msg, state) {
